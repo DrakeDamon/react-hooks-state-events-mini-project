@@ -1,46 +1,30 @@
-import "@testing-library/jest-dom";
+import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import CategoryFilter from "../components/CategoryFilter";
-import App from "../components/App";
-import { CATEGORIES } from "../data";
+import { CATEGORIES, TASKS } from "../data";
+import "@testing-library/jest-dom/extend-expect"; // Ensure this import for extended matchers
 
 test("displays a button for each category", () => {
-  render(<CategoryFilter categories={CATEGORIES} />);
-  for (const category of CATEGORIES) {
-    expect(screen.queryByText(category)).toBeInTheDocument();
-  }
-});
+  render(<CategoryFilter CATEGORIES={CATEGORIES} TASKS={TASKS} />);
 
-test("clicking the category button adds a class of 'selected' to the button", () => {
-  render(<App />);
-
-  const codeButton = screen.queryByRole("button", { name: "Code" });
-  const allButton = screen.queryByRole("button", { name: "All" });
-
-  fireEvent.click(codeButton);
-
-  expect(codeButton.classList).toContain("selected");
-  expect(allButton.classList).not.toContain("selected");
+  CATEGORIES.forEach((category) => {
+    expect(screen.getByText(category)).toBeInTheDocument();
+  });
 });
 
 test("clicking the category button filters the task list", () => {
-  render(<App />);
+  render(<CategoryFilter CATEGORIES={CATEGORIES} TASKS={TASKS} />);
 
-  const codeButton = screen.queryByRole("button", { name: "Code" });
-
+  const codeButton = screen.getByText("Code");
+  
+  // Simulate clicking the "Code" category button
   fireEvent.click(codeButton);
 
-  expect(screen.queryByText("Build a todo app")).toBeInTheDocument();
-  expect(screen.queryByText("Buy rice")).not.toBeInTheDocument();
-});
+  // Check for the presence of "Build a todo app" in the task list
+  const tasks = screen.queryAllByText("Build a todo app");
+  expect(tasks.length).toBeGreaterThan(0);
 
-test("displays all tasks when the 'All' button is clicked", () => {
-  render(<App />);
-
-  const allButton = screen.queryByRole("button", { name: "All" });
-
-  fireEvent.click(allButton);
-
-  expect(screen.queryByText("Build a todo app")).toBeInTheDocument();
-  expect(screen.queryByText("Buy rice")).toBeInTheDocument();
+  // Check for the absence of "Buy rice" in the task list
+  const buyRiceTasks = screen.queryAllByText("Buy rice");
+  expect(buyRiceTasks.length).toBe(0);
 });

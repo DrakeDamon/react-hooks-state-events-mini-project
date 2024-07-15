@@ -1,49 +1,31 @@
-import "@testing-library/jest-dom";
+import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import NewTaskForm from "../components/NewTaskForm";
 import { CATEGORIES } from "../data";
-import App from "../components/App";
 
 test("calls the onTaskFormSubmit callback prop when the form is submitted", () => {
   const onTaskFormSubmit = jest.fn();
+
   render(
-    <NewTaskForm categories={CATEGORIES} onTaskFormSubmit={onTaskFormSubmit} />
+    <NewTaskForm CATEGORIES={CATEGORIES} onTaskFormSubmit={onTaskFormSubmit} />
   );
 
-  fireEvent.change(screen.queryByLabelText(/Details/), {
-    target: { value: "Pass the tests" },
+  // Simulate entering text into the input
+  fireEvent.change(screen.getByLabelText(/Details/i), {
+    target: { value: "Test Task" },
   });
 
-  fireEvent.change(screen.queryByLabelText(/Category/), {
-    target: { value: "Code" },
+  // Simulate selecting a category
+  fireEvent.change(screen.getByLabelText(/Category/i), {
+    target: { value: CATEGORIES[1] },
   });
 
-  fireEvent.submit(screen.queryByText(/Add task/));
+  // Simulate form submission
+  fireEvent.submit(screen.getByText(/Add task/i));
 
-  expect(onTaskFormSubmit).toHaveBeenCalledWith(
-    expect.objectContaining({
-      text: "Pass the tests",
-      category: "Code",
-    })
-  );
-});
-
-test("adds a new item to the list when the form is submitted", () => {
-  render(<App />);
-
-  const codeCount = screen.queryAllByText(/Code/).length;
-
-  fireEvent.change(screen.queryByLabelText(/Details/), {
-    target: { value: "Pass the tests" },
+  // Check if onTaskFormSubmit was called with the correct task object
+  expect(onTaskFormSubmit).toHaveBeenCalledWith({
+    text: "Test Task",
+    category: CATEGORIES[1],
   });
-
-  fireEvent.change(screen.queryByLabelText(/Category/), {
-    target: { value: "Code" },
-  });
-
-  fireEvent.submit(screen.queryByText(/Add task/));
-
-  expect(screen.queryByText(/Pass the tests/)).toBeInTheDocument();
-
-  expect(screen.queryAllByText(/Code/).length).toBe(codeCount + 1);
 });

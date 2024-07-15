@@ -1,19 +1,28 @@
-import React from "react";
-import CategoryFilter from "./CategoryFilter";
-import NewTaskForm from "./NewTaskForm";
-import TaskList from "./TaskList";
-
+import React, { useState } from "react";
+import Task from "./Task";
 import { CATEGORIES, TASKS } from "../data";
-console.log("Here's the data you're working with");
-console.log({ CATEGORIES, TASKS });
+import "@testing-library/jest-dom/extend-expect";
 
 function App() {
+  const [tasks, setTasks] = useState(TASKS);
+
+  function handleDeleteTask(taskToDelete) {
+    setTasks(tasks.filter((task) => task !== taskToDelete));
+  }
+
   return (
     <div className="App">
       <h2>My tasks</h2>
-      <CategoryFilter />
-      <NewTaskForm />
-      <TaskList />
+      <div className="tasks">
+        {tasks.map((task, index) => (
+          <Task
+            key={index}
+            text={task.text}
+            category={task.category}
+            onDelete={() => handleDeleteTask(task)}
+          />
+        ))}
+      </div>
     </div>
   );
 }
